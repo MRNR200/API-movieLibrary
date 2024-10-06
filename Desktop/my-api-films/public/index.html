@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film & Series API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(255, 240, 212);
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        #film-types {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #film-types li {
+            margin: 10px 0;
+        }
+
+        #film-types a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        #film-types a:hover {
+            text-decoration: underline;
+        }
+
+        .film-section {
+            margin-top: 20px;
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            display: none; /* Hide sections initially */
+        }
+
+        .film-section h2 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+
+        .film-section p {
+            margin: 5px 0;
+        }
+
+        #movie-section {
+            border: 2px solid #007bff;
+        }
+
+        #mini-series-section {
+            border: 2px solid #28a745;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to the Film & Series API</h1>
+    <p>This is a simple UI to interact with the API.</p>
+    <p>To view film types, click the links below:</p>
+    <ul id="film-types">
+        <!-- Film type links will be displayed here -->
+    </ul>
+
+    <div id="movie-section" class="film-section">
+        <h2>Movies</h2>
+        <!-- Movies will be displayed here -->
+    </div>
+
+    <div id="mini-series-section" class="film-section">
+        <h2>Mini-Series</h2>
+        <!-- Mini-Series will be displayed here -->
+    </div>
+
+    <script>
+        async function fetchFilmTypes() {
+            try {
+                const response = await fetch('/films');
+                const data = await response.json();
+                const list = document.getElementById('film-types');
+
+                data.forEach(item => {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = "#";
+                    link.textContent = item.type;
+                    link.dataset.url = item.url; // Store URL for later use
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault(); // Prevent page reload
+                        showFilmSection(item.type, item.url); // Show relevant section
+                    });
+                    listItem.appendChild(link);
+                    list.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching film types:', error);
+            }
+        }
+
+        async function showFilmSection(type, url) {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const movieSection = document.getElementById('movie-section');
+                const miniSeriesSection = document.getElementById('mini-series-section');
+
+                if (type === 'Movie') {
+                    movieSection.innerHTML = '<h2>Movies</h2>';
+                    data.films.forEach(film => {
+                        movieSection.innerHTML += `
+                            <div>
+                                <h3>${film.title}</h3>
+                                <p><strong>Type:</strong> ${film.type}</p>
+                                <p><strong>Genre:</strong> ${film.genre}</p>
+                                <p><strong>Year:</strong> ${film.year}</p>
+                            </div>
+                        `;
+                    });
+                    movieSection.style.display = 'block';
+                    miniSeriesSection.style.display = 'none';
+                } else if (type === 'Mini-Series') {
+                    miniSeriesSection.innerHTML = '<h2>Mini-Series</h2>';
+                    data.films.forEach(film => {
+                        miniSeriesSection.innerHTML += `
+                            <div>
+                                <h3>${film.title}</h3>
+                                <p><strong>Type:</strong> ${film.type}</p>
+                                <p><strong>Genre:</strong> ${film.genre}</p>
+                                <p><strong>Year:</strong> ${film.year}</p>
+                            </div>
+                        `;
+                    });
+                    miniSeriesSection.style.display = 'block';
+                    movieSection.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading films:', error);
+            }
+        }
+
+        window.onload = fetchFilmTypes; // Fetch film types when page loads
+    </script>
+</body>
+
+</html>
